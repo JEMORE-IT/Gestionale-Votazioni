@@ -1,0 +1,3 @@
+pandas      # Il "coltellino svizzero" per i dati. Ci serve per leggere l'Excel e trasformarlo in oggetti Python (DataFrame) senza impazzire.
+openpyxl    # È il "motore" che Pandas usa per capire il formato .xlsx (Excel moderno). Senza di questo, Pandas non sa leggere i file Excel.
+watchdog    # È la nostra "sentinella". Ci serve per il pattern Observer: osserva il file e ci avvisa appena viene modificato/salvato.
