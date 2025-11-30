@@ -1,5 +1,5 @@
 from collections import Counter, defaultdict
-from data_adapter import ExcelAdapter
+from app.infrastructure.data_adapter import ExcelAdapter
 
 class VoteManager:
     def __init__(self, file_path: str, delegation_file_path: str):
