@@ -2,15 +2,14 @@
 
 Applicazione Python per l'automazione del conteggio delle votazioni, sviluppata con un approccio incrementale.
 
-## Stato Attuale: Iterazione 3 (Selettore di Votazioni) 📂
-Il sistema permette di navigare tra diverse votazioni presenti in una cartella specifica.
+## Stato Attuale: Iterazione 4 (Integrazione SharePoint) ☁️
+Il sistema è integrato con SharePoint Online per recuperare le votazioni dal cloud.
 
 ### Funzionalità
-- **Navigazione**: Lista interattiva dei file Excel presenti nella cartella `mock_sharepoint`.
-- **Ordinamento**: I file sono ordinati per "Ultima modifica" per trovare subito la votazione corrente.
-- **Sessioni**: Caricamento dinamico della votazione scelta senza riavviare l'app.
-- **Motore Deleghe**: Supporto completo al calcolo pesato e vincoli (Iterazione 2).
-- **Real-time**: Monitoraggio attivo del file selezionato.
+- **Cloud Sync**: Connessione a SharePoint (`sites/board9`) per listare e scaricare votazioni.
+- **Fallback**: Se la connessione fallisce (es. credenziali mancanti), usa automaticamente la cartella locale `mock_sharepoint`.
+- **Navigazione**: Interfaccia unificata per scegliere file locali o remoti.
+- **Motore Deleghe**: Calcolo pesato e vincoli sempre attivi.
 
 ## Installazione
 
@@ -21,30 +20,30 @@ Il sistema permette di navigare tra diverse votazioni presenti in una cartella s
 2.  **Dipendenze**:
     ```bash
     sudo apt install python3-pandas python3-openpyxl python3-watchdog -y
+    pip install Office365-REST-Python-Client --break-system-packages
     ```
+
+## Configurazione SharePoint
+Per abilitare l'accesso al cloud, imposta le variabili d'ambiente o modifica `config.py`:
+- `SHAREPOINT_CLIENT_ID`
+- `SHAREPOINT_CLIENT_SECRET`
 
 ## Utilizzo
 
-1.  **Preparazione**:
-    - I file di votazione vanno in `mock_sharepoint/sites/board9`.
-    - Il file `deleghe.xlsx` va nella root.
-
-2.  **Avvio**:
+1.  **Avvio**:
     ```bash
     python3 main.py
     ```
 
-3.  **Flusso**:
-    - Seleziona il file dalla lista numerata.
-    - L'app mostrerà i risultati in tempo reale.
-    - Premi `Ctrl+C` per tornare al menu e scegliere un altro file.
+2.  **Flusso**:
+    - L'app tenterà di connettersi a SharePoint.
+    - Se riuscito, vedrai i file remoti. Altrimenti, vedrai i file locali.
+    - Seleziona una votazione per iniziare.
 
 ## Struttura del Progetto
-- `main.py`: Entry point e loop di navigazione.
-- `file_selector.py`: Gestione lista e ordinamento file.
-- `session_factory.py`: Factory per creare sessioni di voto.
-- `voting_session.py`: Gestione del ciclo di vita di una sessione.
-- `vote_manager.py`: Logica di business (Core).
-- `delegation_service.py`: Gestione deleghe.
-- `voter_model.py`: Modelli di dominio.
-- `observer.py`: Monitoraggio file system.
+- `main.py`: Entry point.
+- `sharepoint_client.py`: Adattatore per API SharePoint.
+- `config.py`: Configurazione credenziali.
+- `file_selector.py`: Gestione lista file (Locale/Remoto).
+- `voting_session.py`: Gestione sessione (Download/Monitoraggio).
+- `vote_manager.py`: Core logic.

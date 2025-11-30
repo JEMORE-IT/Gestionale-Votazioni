@@ -1,7 +1,7 @@
 import pandas as pd 
 import os 
-from voter_model import Voter, SimpleVoter, ProxyVoter
-from delegation_service import DelegationManager
+from app.core.voter_model import Voter, SimpleVoter, ProxyVoter
+from app.core.delegation_service import DelegationManager
 
 class ExcelAdapter:
     def __init__(self, file_path: str, delegation_file_path: str):

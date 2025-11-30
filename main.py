@@ -1,22 +1,35 @@
 import os
 import sys
-from file_selector import FileSelector
-from session_factory import VotingSessionFactory
+from app.application.file_selector import FileSelector
+from app.application.session_factory import VotingSessionFactory
+from app.infrastructure.sharepoint_client import SharePointClient
+from app.infrastructure import config
 
 # Configurazione
-MOCK_SHAREPOINT_DIR = "mock_sharepoint/sites/board9"
-DELEGATION_FILE = "deleghe.xlsx"
-CURRENT_DIR = os.getcwd()
-SHAREPOINT_PATH = os.path.join(CURRENT_DIR, MOCK_SHAREPOINT_DIR)
-DELEGATION_PATH = os.path.join(CURRENT_DIR, DELEGATION_FILE)
+SHAREPOINT_PATH = os.path.join(config.MOCK_SHAREPOINT_DIR, "sites/board9")
+DELEGATION_PATH = config.DELEGHE_FILE_PATH
 
 def main():
     print(f"🚀 Avvio App Votazioni - Selector Mode")
-    print(f"📂 Cartella Votazioni: {SHAREPOINT_PATH}")
     print(f"📂 File Deleghe: {DELEGATION_PATH}")
 
-    selector = FileSelector(SHAREPOINT_PATH)
-    factory = VotingSessionFactory(DELEGATION_PATH)
+    # Initialize SharePoint Client
+    sp_client = None
+    try:
+        sp_client = SharePointClient()
+        # Try to connect to verify credentials
+        # If credentials are empty, connect() raises ValueError
+        sp_client.connect()
+        print(f"☁️  Modalità SharePoint Attiva: {config.SHAREPOINT_SITE_URL}")
+        source = sp_client
+    except Exception as e:
+        print(f"⚠️  Impossibile connettersi a SharePoint: {e}")
+        print(f"📂 Fallback su cartella locale: {SHAREPOINT_PATH}")
+        source = SHAREPOINT_PATH
+        sp_client = None
+
+    selector = FileSelector(source)
+    factory = VotingSessionFactory(DELEGATION_PATH, sp_client)
 
     while True:
         selected_file = selector.select_file()
