@@ -29,9 +29,7 @@ class VoteObserver:
         event_handler = FileChangeHandler(self.filename, self.callback)
         self.observer.schedule(event_handler, self.path, recursive=False)
         self.observer.start()
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            self.observer.stop()
+    
+    def stop(self):
+        self.observer.stop()
         self.observer.join()
