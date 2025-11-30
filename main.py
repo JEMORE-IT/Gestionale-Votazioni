@@ -1,38 +1,38 @@
 import os
 import sys
-from vote_manager import VoteManager 
-from observer import VoteObserver
+from file_selector import FileSelector
+from session_factory import VotingSessionFactory
 
 # Configurazione
-EXCEL_FILE = "votazioni.xlsx"
+MOCK_SHAREPOINT_DIR = "mock_sharepoint/sites/board9"
 DELEGATION_FILE = "deleghe.xlsx"
 CURRENT_DIR = os.getcwd()
-EXCEL_PATH = os.path.join(CURRENT_DIR, EXCEL_FILE)
+SHAREPOINT_PATH = os.path.join(CURRENT_DIR, MOCK_SHAREPOINT_DIR)
 DELEGATION_PATH = os.path.join(CURRENT_DIR, DELEGATION_FILE)
 
 def main():
-    print(f"🚀 Avvio App Votazioni...")
-    print(f"📂 Monitoraggio file voti: {EXCEL_PATH}")
-    print(f"📂 File deleghe: {DELEGATION_PATH}")
+    print(f"🚀 Avvio App Votazioni - Selector Mode")
+    print(f"📂 Cartella Votazioni: {SHAREPOINT_PATH}")
+    print(f"📂 File Deleghe: {DELEGATION_PATH}")
 
-    # 1. Inizializza il Manager
-    manager = VoteManager(EXCEL_PATH, DELEGATION_PATH)
-    
-    # 2. Fai il primo calcolo (se il file esiste già)
-    manager.calculate_results()
+    selector = FileSelector(SHAREPOINT_PATH)
+    factory = VotingSessionFactory(DELEGATION_PATH)
 
-    # 3. Definisci cosa fare quando il file cambia
-    def on_change():
-        print("\n🔄 Rilevata modifica! Ricalcolo...")
-        manager.calculate_results()
+    while True:
+        selected_file = selector.select_file()
+        
+        if not selected_file:
+            print("👋 Uscita...")
+            break
 
-    # 4. Avvia la sentinella
-    observer = VoteObserver(CURRENT_DIR, EXCEL_FILE, on_change)
-    observer.start()
+        # Crea e avvia la sessione
+        session = factory.create_session(selected_file)
+        session.start()
+        # Quando session.start() ritorna (dopo Ctrl+C), il loop continua e ripropone la lista
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n👋 Uscita...")
+        print("\n👋 Uscita forzata...")
         sys.exit(0)
