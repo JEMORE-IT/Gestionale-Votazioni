@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Votazioni</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🗳️ Sistema Votazioni</h1>
+            <p class="subtitle">Gestione Votazioni in Tempo Reale</p>
+            <div class="header-actions" style="margin-top: 1rem;">
+                <button id="login-btn" class="btn-secondary">🔑 Login SharePoint</button>
+                <button id="shutdown-btn" class="btn-danger">🛑 Spegni Server</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Login Modal -->
+            <div id="login-modal" class="modal hidden">
+                <div class="modal-content">
+                    <h2>🔐 Login SharePoint</h2>
+                    <p>Vai su questo link:</p>
+                    <a id="login-url" href="#" target="_blank" class="login-link">...</a>
+                    <p>Inserisci il codice:</p>
+                    <div id="login-code" class="code-display">...</div>
+                    <div id="login-status" class="status-text">In attesa di login...</div>
+                    <button id="close-login-btn" class="btn-secondary">Chiudi</button>
+                </div>
+            </div>
+
+            <!-- File Selector Section -->
+            <section id="file-selector" class="card">
+                <h2>📂 Seleziona Votazione</h2>
+                <div id="file-list" class="file-grid">
+                    <div class="loading">Caricamento files...</div>
+                </div>
+            </section>
+
+            <!-- Dashboard Section (Hidden by default) -->
+            <section id="dashboard" class="card hidden">
+                <div class="dashboard-header">
+                    <h2>📊 Risultati in Tempo Reale</h2>
+                    <span id="current-file-name" class="badge">Nessun file selezionato</span>
+                    <button id="change-file-btn" class="btn-secondary">Cambia File</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card total">
+                        <h3>Totale Voti</h3>
+                        <div class="value" id="stat-total">0</div>
+                    </div>
+                    <div class="stat-card approvo">
+                        <h3>✅ Favorevoli</h3>
+                        <div class="value" id="stat-approvo">0</div>
+                        <div class="bar-container">
+                            <div class="bar" id="bar-approvo" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card contro">
+                        <h3>❌ Contrari</h3>
+                        <div class="value" id="stat-contro">0</div>
+                        <div class="bar-container">
+                            <div class="bar" id="bar-contro" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card astenuto">
+                        <h3>⚪ Astenuti</h3>
+                        <div class="value" id="stat-astenuto">0</div>
+                        <div class="bar-container">
+                            <div class="bar" id="bar-astenuto" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
