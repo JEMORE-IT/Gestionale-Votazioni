@@ -143,8 +143,8 @@ class SharePointClient:
                         'timeLastModified': file.time_last_modified
                     })
             
-            # Sort by name (to avoid datetime issues)
-            xlsx_files.sort(key=lambda x: x['name'])
+            # Sort by modification date (newest to oldest)
+            xlsx_files.sort(key=lambda x: x['timeLastModified'], reverse=True)
             return xlsx_files
 
         except Exception as e:
