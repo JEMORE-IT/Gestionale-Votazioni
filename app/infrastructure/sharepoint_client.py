@@ -11,7 +11,7 @@ class SharePointClient:
         self.client_secret = config.SHAREPOINT_CLIENT_SECRET
         self.ctx = None
 
-    def connect(self):
+    def connect(self, interactive: bool = True):
         if not self.client_id or not self.client_secret:
             raise ValueError("Credenziali SharePoint mancanti in config.py o variabili d'ambiente.")
         
@@ -67,17 +67,16 @@ class SharePointClient:
             
         except Exception as e:
             print(f"❌ Errore connessione SharePoint (App-Only): {e}")
-            print("⚠️  Tentativo con Device Login (Interattivo)...")
-            self.connect_with_device_flow()
+            if interactive:
+                print("⚠️  Tentativo con Device Login (Interattivo)...")
+                self.connect_with_device_flow()
+            else:
+                raise e
 
-    def connect_with_device_flow(self):
-        """Authenticates using Device Code Flow (Interactive)."""
+    def initiate_device_flow(self):
+        """Initiates Device Code Flow and returns flow info."""
         import msal
-        import sys
         
-        # Public Client (no secret needed for device flow usually, but we use the same app id)
-        # Note: Ensure "Allow public client flows" is YES in Azure AD -> Authentication
-        # Use specific tenant domain to avoid AADSTS50059
         tenant = os.getenv("SHAREPOINT_TENANT_ID", "jemore.onmicrosoft.com")
         authority_url = f"https://login.microsoftonline.com/{tenant}"
         
@@ -86,7 +85,6 @@ class SharePointClient:
             authority=authority_url
         )
         
-        # Better: use the specific resource scope
         from urllib.parse import urlparse
         parsed = urlparse(self.site_url)
         root_url = f"{parsed.scheme}://{parsed.netloc}"
@@ -96,15 +94,14 @@ class SharePointClient:
         if "user_code" not in flow:
             raise ValueError(f"Impossibile avviare Device Flow: {flow.get('error_description')}")
         
-        print(f"\n🚨 AZIONE RICHIESTA: Vai su {flow['verification_uri']} e inserisci il codice: {flow['user_code']}")
-        print("In attesa di login...")
-        sys.stdout.flush()
-        
+        return app, flow
+
+    def finalize_device_flow(self, app, flow):
+        """Waits for user login and completes authentication."""
         result = app.acquire_token_by_device_flow(flow)
         
         if "access_token" in result:
             token = result['access_token']
-            print("✅ Login effettuato!")
             
             class TokenWrapper:
                 def __init__(self, token):
@@ -112,14 +109,23 @@ class SharePointClient:
                     self.tokenType = "Bearer"
             
             self.ctx = ClientContext(self.site_url).with_access_token(lambda: TokenWrapper(token))
-            # Fix for TypeError: can't compare offset-naive and offset-aware datetimes
             self.ctx.authentication_context._token_expires = datetime.now(timezone.utc) + timedelta(hours=1)
             web = self.ctx.web
             self.ctx.load(web)
             self.ctx.execute_query()
             print(f"✅ Connesso a SharePoint come Utente: {web.properties['Title']}")
+            return True
         else:
             raise Exception(f"Login fallito: {result.get('error_description')}")
+
+    def connect_with_device_flow(self):
+        """Legacy method for CLI usage."""
+        import sys
+        app, flow = self.initiate_device_flow()
+        print(f"\n🚨 AZIONE RICHIESTA: Vai su {flow['verification_uri']} e inserisci il codice: {flow['user_code']}")
+        print("In attesa di login...")
+        sys.stdout.flush()
+        self.finalize_device_flow(app, flow)
 
     def list_files(self, relative_folder_url: str = "Shared Documents"):
         """Lists .xlsx files in the specified relative folder URL."""
@@ -143,8 +149,8 @@ class SharePointClient:
                         'timeLastModified': file.time_last_modified
                     })
             
-            # Sort by name (to avoid datetime issues)
-            xlsx_files.sort(key=lambda x: x['name'])
+            # Sort by modification date (newest to oldest)
+            xlsx_files.sort(key=lambda x: x['timeLastModified'], reverse=True)
             return xlsx_files
 
         except Exception as e:

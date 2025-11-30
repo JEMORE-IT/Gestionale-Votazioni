@@ -1,49 +1,78 @@
-# Gestionale Votazioni
+# 🗳️ Sistema Gestione Votazioni
 
-Applicazione Python per l'automazione del conteggio delle votazioni, sviluppata con un approccio incrementale.
+Applicazione web per la gestione automatizzata delle votazioni, integrata con SharePoint e Excel.
 
-## Stato Attuale: Iterazione 4 (Integrazione SharePoint) ☁️
-Il sistema è integrato con SharePoint Online per recuperare le votazioni dal cloud.
+## 🚀 Funzionalità
 
-### Funzionalità
-- **Cloud Sync**: Connessione a SharePoint (`sites/board9`) per listare e scaricare votazioni.
-- **Fallback**: Se la connessione fallisce (es. credenziali mancanti), usa automaticamente la cartella locale `mock_sharepoint`.
-- **Navigazione**: Interfaccia unificata per scegliere file locali o remoti.
-- **Motore Deleghe**: Calcolo pesato e vincoli sempre attivi.
+-   **Interfaccia Web Moderna**: Dashboard intuitiva con aggiornamenti in tempo reale (WebSocket/Polling).
+-   **Integrazione SharePoint**:
+    -   Elenco automatico dei file di votazione (`.xlsx`) da una cartella remota.
+    -   Ordinamento per data (più recenti in alto).
+    -   **Login Interattivo**: Supporto per autenticazione Microsoft Device Flow direttamente dall'interfaccia.
+    -   **Fallback Locale**: Se SharePoint non è raggiungibile, utilizza una cartella locale.
+-   **Calcolo Voti**:
+    -   Conteggio voti pesati (Favorevole, Contrario, Astenuto).
+    -   Gestione deleghe (max 3 per votante).
+    -   Verifica integrità dei dati.
 
-## Installazione
+## 🛠️ Requisiti
 
-1.  **Prerequisiti**:
-    - Python 3.x
-    - Pipx (consigliato)
+-   Python 3.10+
+-   Account Microsoft (per accesso SharePoint)
 
-2.  **Dipendenze**:
+## 📦 Installazione
+
+1.  Clona il repository:
     ```bash
-    sudo apt install python3-pandas python3-openpyxl python3-watchdog -y
-    pip install Office365-REST-Python-Client --break-system-packages
+    git clone https://github.com/AngeLorenzo04/Gestionale-Votazioni.git
+    cd Gestionale-Votazioni
     ```
 
-## Configurazione SharePoint
-Per abilitare l'accesso al cloud, imposta le variabili d'ambiente o modifica `config.py`:
-- `SHAREPOINT_CLIENT_ID`
-- `SHAREPOINT_CLIENT_SECRET`
-
-## Utilizzo
-
-1.  **Avvio**:
+2.  Installa le dipendenze:
     ```bash
-    python3 main.py
+    pip install -r requirements.txt
     ```
 
-2.  **Flusso**:
-    - L'app tenterà di connettersi a SharePoint.
-    - Se riuscito, vedrai i file remoti. Altrimenti, vedrai i file locali.
-    - Seleziona una votazione per iniziare.
+3.  Configura le variabili d'ambiente (opzionale, crea un file `.env`):
+    ```env
+    SHAREPOINT_SITE_URL=https://tuo-tenant.sharepoint.com/sites/tuo-sito
+    SHAREPOINT_CLIENT_ID=tuo-client-id
+    SHAREPOINT_CLIENT_SECRET=tuo-client-secret
+    SHAREPOINT_TENANT_ID=tuo-tenant-id
+    ```
 
-## Struttura del Progetto
-- `main.py`: Entry point.
-- `sharepoint_client.py`: Adattatore per API SharePoint.
-- `config.py`: Configurazione credenziali.
-- `file_selector.py`: Gestione lista file (Locale/Remoto).
-- `voting_session.py`: Gestione sessione (Download/Monitoraggio).
-- `vote_manager.py`: Core logic.
+## ▶️ Utilizzo
+
+Avvia l'applicazione:
+
+```bash
+python3 main.py
+```
+
+Apri il browser all'indirizzo: **http://localhost:8000**
+
+### Flusso di Lavoro
+1.  **Seleziona File**: Scegli il file di votazione dalla lista.
+2.  **Login (se necessario)**: Se i file SharePoint non appaiono, clicca su "🔑 Login SharePoint" e segui le istruzioni a schermo.
+3.  **Monitoraggio**: La dashboard mostrerà i risultati in tempo reale. Ogni modifica al file Excel (locale o remoto) aggiornerà i grafici.
+4.  **Termina**: Usa il pulsante "🛑 Spegni Server" per chiudere l'applicazione.
+
+## 📂 Struttura del Progetto
+
+```
+app/
+├── application/       # Logica applicativa (Sessioni, Selettori)
+├── core/             # Logica di dominio (Gestione Voti, Entità)
+├── infrastructure/   # Adattatori esterni (SharePoint, Excel, Config)
+├── interface/        # Interfaccia Web (FastAPI)
+├── static/           # Assets (CSS, JS)
+└── templates/        # Template HTML
+data/                 # Dati locali (Deleghe, Mock SharePoint)
+main.py               # Entry point
+```
+
+## 👨‍💻 Sviluppo
+
+Il progetto segue i principi della Clean Architecture per garantire manutenibilità e scalabilità.
+-   **Backend**: FastAPI, Office365-REST-Python-Client
+-   **Frontend**: HTML5, CSS3 (Glassmorphism), Vanilla JS
