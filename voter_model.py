@@ -17,6 +17,10 @@ class Voter(ABC):
     def get_weight(self) -> int:
         pass
 
+    @abstractmethod
+    def get_proxy_count(self) -> int:
+        pass
+
 class SimpleVoter(Voter):
     def __init__(self, name: str, choice: str):
         self._name = name
@@ -32,6 +36,9 @@ class SimpleVoter(Voter):
 
     def get_weight(self) -> int:
         return 1
+
+    def get_proxy_count(self) -> int:
+        return 0
 
 class MaxThreeProxiesSpec:
     """Specification to enforce the maximum of 3 proxies rule."""
@@ -59,3 +66,6 @@ class ProxyVoter(Voter):
         proxy_count = len(self.proxies)
         allowed_proxies = self.spec.calculate_allowed_proxies(proxy_count)
         return base_weight + allowed_proxies
+
+    def get_proxy_count(self) -> int:
+        return len(self.proxies)
