@@ -5,15 +5,18 @@ from observer import VoteObserver
 
 # Configurazione
 EXCEL_FILE = "votazioni.xlsx"
+DELEGATION_FILE = "deleghe.xlsx"
 CURRENT_DIR = os.getcwd()
 EXCEL_PATH = os.path.join(CURRENT_DIR, EXCEL_FILE)
+DELEGATION_PATH = os.path.join(CURRENT_DIR, DELEGATION_FILE)
 
 def main():
     print(f"🚀 Avvio App Votazioni...")
-    print(f"📂 Monitoraggio file: {EXCEL_PATH}")
+    print(f"📂 Monitoraggio file voti: {EXCEL_PATH}")
+    print(f"📂 File deleghe: {DELEGATION_PATH}")
 
     # 1. Inizializza il Manager
-    manager = VoteManager(EXCEL_PATH)
+    manager = VoteManager(EXCEL_PATH, DELEGATION_PATH)
     
     # 2. Fai il primo calcolo (se il file esiste già)
     manager.calculate_results()
