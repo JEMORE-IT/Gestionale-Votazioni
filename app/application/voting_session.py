@@ -1,5 +1,5 @@
 from app.core.vote_manager import VoteManager
-from .observer import VoteObserver
+from app.infrastructure.observer import VoteObserver
 from app.infrastructure.sharepoint_client import SharePointClient
 import os
 import time
